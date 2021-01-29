@@ -4,6 +4,8 @@ import os
 import pickle
 from tkinter import messagebox
 import pyperclip
+
+
 def show():
     '''copy password on clipboard'''
     iDir = os.path.abspath(os.path.dirname(__file__))
@@ -29,16 +31,18 @@ def show():
     pwl = list(map(chr, pw))
     plaintxt = ''.join(pwl)
     pyperclip.copy(plaintxt)
+
+
 def hide():
     '''encrypt password XOR'''
-    key = txt.get()
+    masterkey = txt.get()
     if key == "":
         messagebox.showinfo(message="KEY is NEED 1 character!")
         return
-    if len(key) <= 8:
+    if len(masterkey) <= 8:
         messagebox.showinfo(message="NOTICE:password Too short.\n NEVER USED IMPORTANT PASSWORD!")
     iDir = os.path.abspath(os.path.dirname(__file__))
-    file = tk.filedialog.askopenfilename()
+    file = tk.filedialog.asksaveasfilename()
     wrt = file + ".pckl"
     if file == "":
         return
@@ -46,27 +50,33 @@ def hide():
     i = 0
     k = 0
     s = []
-    b = ""
+    b = key.get()
     cryptxt = ""
     p = []
-    with open(file, mode="r") as fp:
-        b = fp.read()
-        b = list(b)
-        for ch in b:
-            s.append(ord(ch) ^ ord(key[i]))
-            if not b:
-                break
-            i += 1
-            if i == len(key):
-                i = 0
+    b = list(b)
+    for ch in b:
+        s.append(ord(ch) ^ ord(masterkey[i]))
+        if not b:
+            break
+        i += 1
+        if i == len(masterkey):
+            i = 0
     with open(wrt, mode="wb") as wfp:
         pickle.dump(s, wfp)
 
-root = tk.Tk()
-txt = tk.Entry(width=128)
-txt.pack()
-cbutton = tk.Button(text="crypt!", command=hide)
-cbutton.pack()
-button = tk.Button(text="decrypt!", command=show)
-button.pack()
-root.mainloop()
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    pwd = tk.Label(text='マスターパスワード')
+    pwd.pack()
+    txt = tk.Entry(width=128)
+    txt.pack()
+    masterpass = tk.Label(text='パスワード')
+    masterpass.pack()
+    key = tk.Entry(width=128)
+    key.pack()
+    cbutton = tk.Button(text="crypt!", command=hide)
+    cbutton.pack()
+    button = tk.Button(text="decrypt!", command=show)
+    button.pack()
+    root.mainloop()
